@@ -2,6 +2,7 @@ package strategy;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
+import entity.ApiLimit;
 import exception.InternalErrorException;
 
 import java.util.concurrent.TimeUnit;
@@ -9,6 +10,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Rate limit algorithm - Fixed window counter
+ * TODO: implement other algorithms such as sliding window, token bucket, and leaky bucket
+ */
 public class FixedWindowRateLimit implements IRateLimitStrategy {
     /* timeout for {@code Lock.tryLock() }. */
     private static final long TRY_LOCK_TIMEOUT = 200l; // 200ms.
@@ -16,17 +21,20 @@ public class FixedWindowRateLimit implements IRateLimitStrategy {
     private AtomicInteger currentCount = new AtomicInteger(0);
     private Lock lock = new ReentrantLock();
 
-    /* the max permitted access count per second */
+    /* the max permitted access count per second by default*/
     private final int limit;
 
+    /* limit period in second */
+    private final int unit;
 
-    public FixedWindowRateLimit(int limit) {
-        this(limit, Stopwatch.createStarted());
+    public FixedWindowRateLimit(ApiLimit apiLimit) {
+        this(apiLimit.getLimit(), apiLimit.getUnit(), Stopwatch.createStarted());
     }
 
     @VisibleForTesting
-    protected FixedWindowRateLimit(int limit, Stopwatch stopwatch) {
+    protected FixedWindowRateLimit(int limit, int unit, Stopwatch stopwatch) {
         this.limit = limit;
+        this.unit = unit <= 0 ? 1 : unit;
         this.stopwatch = stopwatch;
     }
 
@@ -39,11 +47,12 @@ public class FixedWindowRateLimit implements IRateLimitStrategy {
         try {
             if (lock.tryLock(TRY_LOCK_TIMEOUT, TimeUnit.MILLISECONDS)) {
                 try {
-                    if (stopwatch.elapsed(TimeUnit.MILLISECONDS) > TimeUnit.SECONDS.toMillis(1)) {
+                    if (stopwatch.elapsed(TimeUnit.MILLISECONDS) > TimeUnit.SECONDS.toMillis(unit)) {
                         currentCount.set(0);
                         stopwatch.reset();
                     }
-                    updatedCount = currentCount.incrementAndGet();
+                    //TODO is it correct to incrementAndGet() again?
+//                    updatedCount = currentCount.incrementAndGet();
                     return updatedCount <= limit;
                 } finally {
                     lock.unlock();

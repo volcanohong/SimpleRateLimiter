@@ -6,6 +6,9 @@ import strategy.FixedWindowRateLimit;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Fixed time window rate limiter based on memory. This class is thread safe.
+ */
 @Slf4j
 public class RateLimiter extends AbstractRateLimiter implements IRateLimiter {
 
@@ -22,7 +25,7 @@ public class RateLimiter extends AbstractRateLimiter implements IRateLimiter {
         String counterKey = appId + ":" + apiLimit.getApi();
         FixedWindowRateLimit rateLimitCounter = counters.get(counterKey);
         if (rateLimitCounter == null) {
-            FixedWindowRateLimit newRateLimitCounter = new FixedWindowRateLimit(apiLimit.getLimit());
+            FixedWindowRateLimit newRateLimitCounter = new FixedWindowRateLimit(apiLimit);
             rateLimitCounter = counters.putIfAbsent(counterKey, newRateLimitCounter);
             if (rateLimitCounter == null) {
                 rateLimitCounter = newRateLimitCounter;

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * Mapping to yaml rule config
+ * Mapping to rate limit config
  */
 @Data
 public class RuleConfig {

@@ -9,11 +9,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Abstract class for rate limiter.
+ * Rate limiter template.
+ *
+ * TODO extend to read from JSON as well
  */
 @Slf4j
-public class AbstractRateLimiter implements IRateLimiter {
-    private static final String RATELIMITER_RULE_YAML = "/ratelimiter-rule.yaml";
+public abstract class AbstractRateLimiter implements IRateLimiter {
+
+    private static final String RATE_LIMIT_RULE_YAML = "/rate-limit-rule.yaml";
 
     protected RateLimitRule rateLimitRule;
 
@@ -21,9 +24,17 @@ public class AbstractRateLimiter implements IRateLimiter {
      * Default construct.
      */
     public AbstractRateLimiter() {
-        this(RATELIMITER_RULE_YAML);
+        this(RATE_LIMIT_RULE_YAML);
     }
 
+    /**
+     * Construct
+     *
+     * TODO extract the yaml parsing to Utils
+     * TODO using strategy pattern for diff. parsing logic
+     *
+     * @param configFilePath the path of rate limit config file
+     */
     public AbstractRateLimiter(String configFilePath) {
         InputStream in = null;
         RuleConfig ruleConfig = null;

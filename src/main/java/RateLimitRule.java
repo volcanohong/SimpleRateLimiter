@@ -40,6 +40,8 @@ public class RateLimitRule {
     /**
      * Get limit info for the url path.
      *
+     * TODO a lot to improve on url or api path matching
+     *
      * @param urlPath urlPath path
      * @return the limit info for the urlPath.
      * @throws InvalidUrlException if the url path is invalid.
@@ -50,6 +52,7 @@ public class RateLimitRule {
         }
 
         for (ApiLimit limit : limits) {
+            // This is a simple compare, need to refactor using some data structures or algorithms, e.g., Trie
             if (urlPath.contains(limit.getApi())) {
                 log.info("url [{}] get limit info: {}.", urlPath, limit);
                 return limit;

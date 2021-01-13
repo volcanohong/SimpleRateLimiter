@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Mapping to yaml API limit config
+ * Mapping to rate limit config
  */
 @Setter
 @Getter

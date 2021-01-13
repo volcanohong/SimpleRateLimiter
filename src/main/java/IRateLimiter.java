@@ -4,7 +4,7 @@ import exception.OverloadException;
 
 public interface IRateLimiter {
     /**
-     * check if the url request of the specified app exceeds the max hit limit.
+     * Check if the url request of the specified app exceeds the max hit limit.
      *
      * @param appId the app ID
      * @param url   the request url
